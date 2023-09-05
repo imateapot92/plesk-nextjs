@@ -73,7 +73,7 @@ const args = (0, _index.default)({
 });
 // Version is inlined into the file using taskr build pipeline
 if (args["--version"]) {
-    console.log(`Next.js v${"13.4.1"}`);
+    console.log(`Next.js v${"13.4.19"}`);
     process.exit(0);
 }
 // Check if we are running `next <subcommand>` or `next`
@@ -99,6 +99,12 @@ if (!foundCommand && args["--help"]) {
     process.exit(0);
 }
 const command = foundCommand ? args._[0] : defaultCommand;
+if ([
+    "experimental-compile",
+    "experimental-generate"
+].includes(command)) {
+    args._.push("--build-mode", command);
+}
 const forwardedArgs = foundCommand ? args._.slice(1) : args._;
 if (args["--inspect"]) throw new Error(`--inspect flag is deprecated. Use env variable NODE_OPTIONS instead: NODE_OPTIONS='--inspect' next ${command}`);
 // Make sure the `next <subcommand> --help` case is covered
@@ -139,7 +145,7 @@ if (!process.env.NEXT_MANUAL_SIG_HANDLE && command !== "dev") {
     process.on("SIGINT", ()=>process.exit(0));
 }
 _commands.commands[command]().then((exec)=>exec(forwardedArgs)).then(()=>{
-    if (command === "build") {
+    if (command === "build" || command === "experimental-compile") {
         // ensure process exits after build completes so open handles/connections
         // don't cause process to hang
         process.exit(0);
